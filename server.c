@@ -13,23 +13,22 @@
 #include "struct.h"
 #define max_player 15
 
-int checkLogin(User* user);
-void upperString (char* string);
 void formatBuff(char* string);
 int makeListenSocket(struct sockaddr_in serverAddr, int portNo, int backlog);
 void setupPollingServer(int listenSock, struct pollfd* client, int clientArrLen);
+int checkLogin(User* user);
 
 int main()
 {
     int listenSock, connSock;
-    int tranBytes;
     struct sockaddr_in serverAddr, clientAddr;
-    char recvBuff[1024], sendBuff[1024];
-    int portNo = 5500;
     int clientAddrLenght = sizeof(clientAddr);
-    User* user;
+    int portNo = 5500;
+    char recvBuff[1024], sendBuff[1024];
+    int tranBytes;
 
-    int val;
+    User* user = (User*)calloc(1, sizeof(User));
+    SocketData* s_data = (SocketData*)calloc(1, sizeof(SocketData));
 
     struct pollfd client[max_player];
     int i, maxi, sockfd, maxfd;
@@ -59,9 +58,9 @@ int main()
                 if(--rv <= 0) continue;
             }
             for(i = 1; i < max_player; i++){
-                //dosomething
                 if((sockfd = client[i].fd) <0)  continue;
                 if(client[i].revents & (POLLRDNORM | POLLERR)){
+                    //dosomething
                     formatBuff(recvBuff);
                     tranBytes = read(sockfd, recvBuff, 1024);
                     
@@ -69,8 +68,13 @@ int main()
                         close(sockfd);
                         client[i].fd = -1;
                     }else{
-                        user = (User *)recvBuff;
-                        printf("%s\n", user->password);
+                        //user = (User *)recvBuff;
+                        s_data = (SocketData *)recvBuff;
+                        user = (User *)s_data->addData;
+                        printf("%p\n", user);
+                        printf("username = %s\n", user->username);
+                        //user = (User *)recvBuff;
+                        //printf("user : %s\n", user->username);
                         if(checkLogin(user)!=1){
                             tranBytes = write(sockfd, "LOGIN FAIL", 1024);
                         }
@@ -90,49 +94,6 @@ int main()
 
 
 /*FUNCTIONS*/
-int checkLogin(User* user){
-    FILE *fp;
-    char *token;
-    char data[256];
-
-    if((fp=fopen("user.txt","r"))==NULL){
-        printf("OPEN USER.TXT FAIL\n");
-        fclose(fp);
-        return 0;
-    }
-
-    while(!feof(fp)){
-        fgets(data,256,fp);
-        if(data[0]=='U' && data[1]=='|'){
-
-            token = strtok(data, "|");
-            token = strtok(NULL, "|");
-            
-            if(strcmp(token,user->username)==0){      
-                token = strtok(NULL, "|");
-                
-                if(strcmp(token,user->password)==0){
-                    fclose(fp);
-                    return 1;
-                }else{
-                    fclose(fp);
-                    return 0;
-                }           
-            }
-        }
-    }
-    fclose(fp);
-    return 0;
-}
-
-void upperString (char* string){
-  int i;
-  for(i = 0; i < strlen(string); ++i){
-    string[i] = toupper(string[i]);
-}
-return;
-}
-
 void formatBuff(char* string){
     int i = 0;
     while(string[i] != '\0'){
@@ -143,7 +104,6 @@ void formatBuff(char* string){
 
 int makeListenSocket(struct sockaddr_in serverAddr, int portNo, int backlog){
     int listenSock;
-
 
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = INADDR_ANY;
@@ -170,4 +130,39 @@ void setupPollingServer(int listenSock, struct pollfd* client, int clientArrLen)
     client[0].fd = listenSock;
     client[0].events = POLLRDNORM;
     for(i = 1; i < clientArrLen; i++) client[i].fd = -1;
+}
+
+int checkLogin(User* user){
+    FILE *fp;
+    char *token;
+    char data[256];
+
+    if((fp=fopen("user.txt","r"))==NULL){
+        printf("OPEN USER.TXT FAIL\n");
+        //fclose(fp);
+        return 0;
+    }
+
+    while(!feof(fp)){
+        fgets(data,256,fp);
+        if(data[0]=='U' && data[1]=='|'){
+
+            token = strtok(data, "|");
+            token = strtok(NULL, "|");
+            
+            if(strcmp(token,user->username)==0){      
+                token = strtok(NULL, "|");
+                
+                if(strcmp(token,user->password)==0){
+                    fclose(fp);
+                    return 1;
+                }else{
+                    fclose(fp);
+                    return 0;
+                }           
+            }
+        }
+    }
+    fclose(fp);
+    return 0;
 }

@@ -25,7 +25,7 @@ typedef enum{
 
 typedef struct {
 	Header header;
-	char data;	
+	char* addData;
 }SocketData;
 
 #endif

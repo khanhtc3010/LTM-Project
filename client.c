@@ -13,6 +13,7 @@ int makeConnectSocket(struct sockaddr_in serverAddr, int portNo, char* serverIp)
 void playGame(User* user, int sockfd, char* buff);
 void makeUserPointer(User* user);
 int login(User* user, int sockfd, char* buff);
+void encoreSocketData(SocketData* s_data, Header header, char* data);
 int menu();
 
 int main()
@@ -20,9 +21,10 @@ int main()
 	int sockfd;
 	int portNo = 5500;
 	struct sockaddr_in serverAddr;
-	char sendBuff[1024], recvBuff[1024];
+	char buff[1024];
 
 	User* user = (User*)calloc(1, sizeof(User));
+	//SocketData* s_data = (SocketData*)calloc(1, sizeof(SocketData));
 
 	int choiceOption;
 
@@ -31,25 +33,15 @@ int main()
 	do{
 		//do something
 		choiceOption = menu();
-		if(choiceOption == 1)	{playGame(user, sockfd, recvBuff); continue;}
-		if(choiceOption == 2)	{printf("Help\n"); continue;}
-		if(choiceOption == 3)	break;
-		//log in
-		/*while(1){
-			user = login();
-		// send
-			tranBytes = write(sockfd, user, 1024);
-			if(tranBytes < 0)	error("Error writing socket!");
-
-			formatBuff(recvBuff);
-			tranBytes = read(sockfd, recvBuff, 1024);
-			if(strcmp(recvBuff, "LOGIN SUCCESS")==0){
-				break;
-			}
+		if(choiceOption == 1){
+			playGame(user, sockfd, buff);
+			continue;
 		}
-		printf("GAME START\n");
-		break;*/
-		
+		if(choiceOption == 2){
+			printf("Help\n");
+			continue;
+		}
+		if(choiceOption == 3)	break;
 	}while(1);
 
 	close(sockfd);
@@ -102,10 +94,16 @@ void makeUserPointer(User* user){
 
 int login(User* user, int sockfd, char* buff){
 	int tranBytes;
+	SocketData* s_data = (SocketData*)calloc(1, sizeof(SocketData));
 	formatBuff(buff);
 
 	makeUserPointer(user);
-	tranBytes = write(sockfd, user, 1024);
+	printf("%p\n", user);
+	encoreSocketData(s_data, LOG_IN, (char*)user);
+
+	//printf("=>>user : %s\n", s_data->data);
+	tranBytes = write(sockfd, s_data, 1024);
+	//tranBytes = write(sockfd, user, 1024);
 	if(tranBytes < 0)	error("Error writing socket!");
 	tranBytes = read(sockfd, buff, 1024);
 	if(strcmp(buff, "LOGIN SUCCESS") == 0){
@@ -115,14 +113,17 @@ int login(User* user, int sockfd, char* buff){
 }
 
 void playGame(User* user, int sockfd, char* buff){
-	int check;
-	check = login(user, sockfd, buff);
-	if(check == 1){
+	if(login(user, sockfd, buff) == 1){
 		printf("Game start!\n");
-		
 		return;
 	}else{
 		printf("Login fail!\n");
 		return;
 	}
+}
+
+void encoreSocketData(SocketData* s_data, Header header, char* addData){
+	s_data->header = header;
+	s_data->addData = addData;
+	printf("-- %p\n", s_data->addData);
 }
