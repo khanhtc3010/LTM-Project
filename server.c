@@ -70,7 +70,7 @@ int main()
                         close(sockfd);
                         client[i].fd = -1;
                     }else{
-                        //s_data = *((struct SocketData *)recvBuff);
+                        s_data = *((struct SocketData *)recvBuff);
                         printf("%d\n", s_data.header);
                         user = *((struct User *)(s_data.data));
                         if(checkLogin(user)!=1){
@@ -134,8 +134,6 @@ int checkLogin(User user){
     FILE *fp;
     char *token;
     char data[256];
-    printf("name = %s\n", user.username);
-    printf("pass = %s\n", user.password);
 
     if((fp=fopen("txt_user.txt","r"))==NULL){
         printf("OPEN USER.TXT FAIL\n");

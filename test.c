@@ -16,8 +16,13 @@ int main()
 	SocketData s_data, s_data_res;
 	char buff[1000];
 
-	strcpy(user.username, "KhanhTran");
-	strcpy(user.password, "dauxanh");
+	/*strcpy(user.username, "KhanhTran");
+	strcpy(user.password, "dauxanh");*/
+	scanf(" %[^\n]", user.username);
+	printf("%s\n", user.username);
+	printf("ENTER PASSWORD:\t");
+	scanf(" %[^\n]", user.password);
+	printf("%s\n", user.password);
 	memcpy(buff,&user, sizeof(User));
 
 	/*user_res = *((struct User *)(buff));
