@@ -16,7 +16,7 @@
 void formatBuff(char* string);
 int makeListenSocket(struct sockaddr_in serverAddr, int portNo, int backlog);
 void setupPollingServer(int listenSock, struct pollfd* client, int clientArrLen);
-int checkLogin(User* user);
+int checkLogin(User user);
 
 int main()
 {
@@ -27,8 +27,10 @@ int main()
     char recvBuff[1024], sendBuff[1024];
     int tranBytes;
 
-    User* user = (User*)calloc(1, sizeof(User));
-    SocketData* s_data = (SocketData*)calloc(1, sizeof(SocketData));
+    /*User* user = (User*)calloc(1, sizeof(User));
+    SocketData* s_data = (SocketData*)calloc(1, sizeof(SocketData));*/
+    User user;
+    SocketData s_data;
 
     struct pollfd client[max_player];
     int i, maxi, sockfd, maxfd;
@@ -68,13 +70,9 @@ int main()
                         close(sockfd);
                         client[i].fd = -1;
                     }else{
-                        //user = (User *)recvBuff;
-                        s_data = (SocketData *)recvBuff;
-                        user = (User *)s_data->addData;
-                        printf("%p\n", user);
-                        printf("username = %s\n", user->username);
-                        //user = (User *)recvBuff;
-                        //printf("user : %s\n", user->username);
+                        //s_data = *((struct SocketData *)recvBuff);
+                        printf("%d\n", s_data.header);
+                        user = *((struct User *)(s_data.data));
                         if(checkLogin(user)!=1){
                             tranBytes = write(sockfd, "LOGIN FAIL", 1024);
                         }
@@ -132,14 +130,15 @@ void setupPollingServer(int listenSock, struct pollfd* client, int clientArrLen)
     for(i = 1; i < clientArrLen; i++) client[i].fd = -1;
 }
 
-int checkLogin(User* user){
+int checkLogin(User user){
     FILE *fp;
     char *token;
     char data[256];
+    printf("name = %s\n", user.username);
+    printf("pass = %s\n", user.password);
 
-    if((fp=fopen("user.txt","r"))==NULL){
+    if((fp=fopen("txt_user.txt","r"))==NULL){
         printf("OPEN USER.TXT FAIL\n");
-        //fclose(fp);
         return 0;
     }
 
@@ -150,10 +149,10 @@ int checkLogin(User* user){
             token = strtok(data, "|");
             token = strtok(NULL, "|");
             
-            if(strcmp(token,user->username)==0){      
+            if(strcmp(token,user.username)==0){      
                 token = strtok(NULL, "|");
                 
-                if(strcmp(token,user->password)==0){
+                if(strcmp(token,user.password)==0){
                     fclose(fp);
                     return 1;
                 }else{

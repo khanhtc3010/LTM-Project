@@ -2,19 +2,19 @@
 #define __HEADER_H__
 
 #define MAX_STRING_LEN 100
-#define MAX_DATA_LEN 256
+#define MAX_DATA_LEN 200
 
 // typedef struct {
 // 	char string[MAX_STRING_LEN];
 // }String;
 
-typedef struct 
+typedef struct User
 {
 	char username[MAX_STRING_LEN];
 	char password[MAX_STRING_LEN];
 }User;
 
-typedef struct {
+typedef struct Answer{
 	// TODO
 }Answer;
 
@@ -23,9 +23,9 @@ typedef enum{
 	RQ_ANSWER, RQ_ESCAPE
 }Header;
 
-typedef struct {
+typedef struct SocketData{
 	Header header;
-	char* addData;
+	char data[MAX_DATA_LEN];
 }SocketData;
 
 #endif

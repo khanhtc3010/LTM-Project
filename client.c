@@ -10,10 +10,10 @@
 
 void formatBuff(char* string);
 int makeConnectSocket(struct sockaddr_in serverAddr, int portNo, char* serverIp);
-void playGame(User* user, int sockfd, char* buff);
-void makeUserPointer(User* user);
-int login(User* user, int sockfd, char* buff);
-void encoreSocketData(SocketData* s_data, Header header, char* data);
+void playGame(User user, int sockfd, char* buff);
+//void makeUserPointer(User* user);
+int login(User user, int sockfd, char* buff);
+SocketData encoreSocketData(Header header, char* data);
 int menu();
 
 int main()
@@ -23,8 +23,9 @@ int main()
 	struct sockaddr_in serverAddr;
 	char buff[1024];
 
-	User* user = (User*)calloc(1, sizeof(User));
+	//User* user = (User*)calloc(1, sizeof(User));
 	//SocketData* s_data = (SocketData*)calloc(1, sizeof(SocketData));
+	User user;
 
 	int choiceOption;
 
@@ -85,25 +86,39 @@ int menu(){
 	return choice;
 }
 
-void makeUserPointer(User* user){
+/*void makeUserPointer(User user){
 	printf("ENTER USERNAME:\t");
-	scanf(" %[^\n]", user->username);
+	scanf(" %[^\n]", user.username);
 	printf("ENTER PASSWORD:\t");
-	scanf(" %[^\n]", user->password);
-}
+	scanf(" %[^\n]", user.password);
+}*/
 
-int login(User* user, int sockfd, char* buff){
+int login(User user, int sockfd, char* buff){
 	int tranBytes;
-	SocketData* s_data = (SocketData*)calloc(1, sizeof(SocketData));
+	SocketData s_data;
 	formatBuff(buff);
+	User user_res;
 
-	makeUserPointer(user);
-	printf("%p\n", user);
-	encoreSocketData(s_data, LOG_IN, (char*)user);
+	/*printf("ENTER USERNAME:\t");
+	scanf(" %[^\n]", user.username);
+	printf("%s\n", user.username);
+	printf("ENTER PASSWORD:\t");
+	scanf(" %[^\n]", user.password);
+	printf("%s\n", user.password);*/
+	strcpy(user.username, "khoi");
+	strcpy(user.password, "khoa");
+	memcpy(buff,&user, sizeof(User));
 
-	//printf("=>>user : %s\n", s_data->data);
+	//s_data = encoreSocketData(LOG_IN, buff);
+	s_data.header = LOG_IN;
+	memcpy(s_data.data, &buff, 200);
+	//memcpy(buff,&s_data, sizeof(SocketData));
 	tranBytes = write(sockfd, s_data, 1024);
-	//tranBytes = write(sockfd, user, 1024);
+	s_data = *((struct SocketData *)buff);
+    printf("%d\n", s_data.header);
+    user = *((struct User *)(s_data.data));
+    printf("%s\n", user.username);
+    printf("%s\n", user.password);
 	if(tranBytes < 0)	error("Error writing socket!");
 	tranBytes = read(sockfd, buff, 1024);
 	if(strcmp(buff, "LOGIN SUCCESS") == 0){
@@ -112,7 +127,7 @@ int login(User* user, int sockfd, char* buff){
 	return 0;
 }
 
-void playGame(User* user, int sockfd, char* buff){
+void playGame(User user, int sockfd, char* buff){
 	if(login(user, sockfd, buff) == 1){
 		printf("Game start!\n");
 		return;
@@ -122,8 +137,9 @@ void playGame(User* user, int sockfd, char* buff){
 	}
 }
 
-void encoreSocketData(SocketData* s_data, Header header, char* addData){
-	s_data->header = header;
-	s_data->addData = addData;
-	printf("-- %p\n", s_data->addData);
+SocketData encoreSocketData(Header header, char* data){
+	SocketData s_data;
+	s_data.header = header;
+	memcpy(s_data.data, &data, MAX_DATA_LEN);
+	return s_data;
 }
