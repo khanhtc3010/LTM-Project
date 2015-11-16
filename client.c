@@ -10,12 +10,14 @@
 
 void formatBuff(char* string);
 int makeConnectSocket(struct sockaddr_in serverAddr, int portNo, char* serverIp);
-//void playGame(User user, int sockfd, char* buff);
 void playGame(int sockfd);
-//int login(User user, int sockfd, char* buff);
 int login(int sockfd);
-SocketData encoreSocketData(Header header, char* data);
+void writeBuff(int sockfd, Header header, char* data);
+SocketData readBuff(int sockfd);
 int menu();
+
+char buff[1024];
+int tranBytes;
 
 int main()
 {
@@ -75,6 +77,26 @@ int makeConnectSocket(struct sockaddr_in serverAddr, int portNo, char* serverIp)
 	return sockfd;
 }
 
+void writeBuff(int sockfd, Header header, char* data){
+    SocketData s_data;
+    s_data.header = header;
+    memcpy(s_data.data, data, MAX_DATA_LEN);
+
+    formatBuff(buff);
+    memcpy(buff, &s_data, sizeof(SocketData));
+
+    tranBytes = write(sockfd, buff, sizeof(SocketData));
+    if(tranBytes < 0)   error("Error writing socket!");
+}
+
+SocketData readBuff(int sockfd){
+    SocketData s_data;
+    tranBytes = read(sockfd, buff, 1024);
+    if(tranBytes < 0)   error("Error reading socket!");
+    s_data = *((struct SocketData *)buff);
+    return s_data;
+}
+
 int menu(){
 	int choice;
 	printf("===========1 vs 100==========\n\t1.Play Game\n\t2.Help\n\t3.Exit\n=============================\nChoice: ");
@@ -83,9 +105,7 @@ int menu(){
 }
 
 int login(int sockfd){
-	int tranBytes;
 	SocketData s_data;
-	char buff[1024];
 	User user;
 
 	printf("ENTER USERNAME:\t");
@@ -94,15 +114,9 @@ int login(int sockfd){
 	scanf(" %[^\n]", user.password);
 	memcpy(buff,&user, sizeof(User));
 
-	s_data = encoreSocketData(LOG_IN, buff);
-	formatBuff(buff);
-	memcpy(buff,&s_data, sizeof(SocketData));
-
-	tranBytes = write(sockfd, buff, sizeof(SocketData));
-
-	if(tranBytes < 0)	error("Error writing socket!");
-	tranBytes = read(sockfd, buff, 1024);
-	if(strcmp(buff, "LOGIN SUCCESS") == 0){
+	writeBuff(sockfd, LOG_IN, buff);
+	s_data = readBuff(sockfd);
+	if(strcmp(s_data.data, "LOGIN SUCCESS") == 0){
 		return 1;
 	}
 	return 0;
@@ -116,11 +130,4 @@ void playGame(int sockfd){
 		printf("Login fail!\n");
 		return;
 	}
-}
-
-SocketData encoreSocketData(Header header, char* data){
-	SocketData s_data;
-	s_data.header = header;
-	memcpy(s_data.data, data, MAX_DATA_LEN);
-	return s_data;
 }

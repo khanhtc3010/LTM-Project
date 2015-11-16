@@ -17,11 +17,12 @@ void formatBuff(char* string);
 int makeListenSocket(struct sockaddr_in serverAddr, int portNo, int backlog);
 void setupPollingServer(int listenSock, struct pollfd* client, int clientArrLen);
 void headerFactory(int sockfd, SocketData s_data, User user, User* player_list);
-SocketData encoreSocketData(Header header, char* data);
+void writeBuff(int sockfd, Header header, char* data);
+SocketData readBuff(int sockfd);
 int checkLogin(User user);
 
 
-char recvBuff[1024], sendBuff[1024];
+char buff[1024];
 int tranBytes;
 
 int main()
@@ -30,8 +31,6 @@ int main()
     struct sockaddr_in serverAddr, clientAddr;
     int clientAddrLenght = sizeof(clientAddr);
     int portNo = 5500;
-    /*char recvBuff[1024], sendBuff[1024];
-    int tranBytes;*/
 
     User user;
     User player_list[10];
@@ -67,23 +66,16 @@ int main()
             for(i = 1; i < max_player; i++){
                 if((sockfd = client[i].fd) <0)  continue;
                 if(client[i].revents & (POLLRDNORM | POLLERR)){
-                    formatBuff(recvBuff);
-                    tranBytes = read(sockfd, recvBuff, 1024);
+                    formatBuff(buff);
+                    tranBytes = read(sockfd, buff, 1024);
                     
                     if(tranBytes == 0){
                         close(sockfd);
                         client[i].fd = -1;
                     }else{
                         //dosomething
-                        s_data = *((struct SocketData *)recvBuff);
+                        s_data = *((struct SocketData *)buff);
                         headerFactory(sockfd, s_data, user, player_list);
-                        /*user = *((struct User *)(s_data.data));
-                        if(checkLogin(user)!=1){
-                            tranBytes = write(sockfd, "LOGIN FAIL", 1024);
-                        }
-                        else{
-                            tranBytes = write(sockfd, "LOGIN SUCCESS", 1024);
-                        }*/
                     }
                     if(--rv <= 0)   break;
                 }
@@ -135,20 +127,37 @@ void setupPollingServer(int listenSock, struct pollfd* client, int clientArrLen)
     for(i = 1; i < clientArrLen; i++) client[i].fd = -1;
 }
 
+void writeBuff(int sockfd, Header header, char* data){
+    SocketData s_data;
+    s_data.header = header;
+    memcpy(s_data.data, data, MAX_DATA_LEN);
+
+    formatBuff(buff);
+    memcpy(buff, &s_data, sizeof(SocketData));
+
+    tranBytes = write(sockfd, buff, sizeof(SocketData));
+    if(tranBytes < 0)   error("Error writing socket!");
+}
+
+SocketData readBuff(int sockfd){
+    SocketData s_data;
+    tranBytes = read(sockfd, buff, 1024);
+    if(tranBytes < 0)   error("Error reading socket!");
+    s_data = *((struct SocketData *)buff);
+    return s_data;
+}
+
 void headerFactory(int sockfd, SocketData s_data, User user, User* player_list){
     switch(s_data.header){
         case LOG_IN:
             user = *((struct User *)(s_data.data));
             if(checkLogin(user)!=1){
-                s_data = encoreSocketData(LOG_IN, "LOGIN FAIL");
-                tranBytes = write(sockfd, "LOGIN FAIL", 1024);
+                writeBuff(sockfd, LOG_IN, "LOGIN FAIL");
             }else{
-                tranBytes = write(sockfd, "LOGIN SUCCESS", 1024);
+                writeBuff(sockfd, LOG_IN, "LOGIN SUCCESS");
             }
             break;
         case RQ_ANSWER:
-            break;
-        case ERROR:
             break;
     }
 }
@@ -188,18 +197,3 @@ int checkLogin(User user){
     fclose(fp);
     return 0;
 }
-
-SocketData encoreSocketData(Header header, char* data){
-    SocketData s_data;
-    s_data.header = header;
-    memcpy(s_data.data, data, MAX_DATA_LEN);
-    return s_data;
-}
-
-/*void writeBuff(int sockfd, char* buff, Header header, char* data){
-    SocketData s_data;
-    formatBuff(buff);
-
-    s_data.header = header;
-    memcpy(s_data.data, )
-}*/
