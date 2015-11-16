@@ -22,12 +22,7 @@ int main()
 	int sockfd;
 	int portNo = 5500;
 	struct sockaddr_in serverAddr;
-	//char buff[1024];
-
-	//User* user = (User*)calloc(1, sizeof(User));
-	//SocketData* s_data = (SocketData*)calloc(1, sizeof(SocketData));
-	///User user;
-
+	
 	int choiceOption;
 
 	sockfd = makeConnectSocket(serverAddr, portNo, "127.0.0.1");
@@ -89,30 +84,19 @@ int menu(){
 
 int login(int sockfd){
 	int tranBytes;
-	SocketData s_data, s_data_res;
+	SocketData s_data;
 	char buff[1024];
-	User user_res, user;
+	User user;
 
 	printf("ENTER USERNAME:\t");
 	scanf(" %[^\n]", user.username);
 	printf("ENTER PASSWORD:\t");
 	scanf(" %[^\n]", user.password);
-	/*strcpy(user.username, "khoi");
-	strcpy(user.password, "khoa");*/
 	memcpy(buff,&user, sizeof(User));
 
-	//s_data = encoreSocketData(LOG_IN, buff);
-	s_data.header = LOG_IN;
-	memcpy(s_data.data, &buff, MAX_DATA_LEN);
+	s_data = encoreSocketData(LOG_IN, buff);
 	formatBuff(buff);
 	memcpy(buff,&s_data, sizeof(SocketData));
-
-	s_data_res = *((struct SocketData *)buff);
-	user_res = *((struct User *)(s_data_res.data));
-
-	printf("header = %d\n", s_data_res.header);
-	printf("username = %s\n", user_res.username);
-	printf("password = %s\n", user_res.password);
 
 	tranBytes = write(sockfd, buff, sizeof(SocketData));
 
@@ -137,6 +121,6 @@ void playGame(int sockfd){
 SocketData encoreSocketData(Header header, char* data){
 	SocketData s_data;
 	s_data.header = header;
-	memcpy(s_data.data, &data, MAX_DATA_LEN);
+	memcpy(s_data.data, data, MAX_DATA_LEN);
 	return s_data;
 }
