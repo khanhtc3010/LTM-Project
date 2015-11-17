@@ -10,25 +10,35 @@ void formatBuff(char* string){
     }
 }
 
+void insertItem(int* array){
+	int i;
+	for(i = 0; i < 10; i++){
+		array[i] = i;
+	}
+}
+
 int main()
 {
 	User user, user_res;
 	SocketData s_data, s_data_res;
 	char buff[1000];
 
+	int array[10];
+	insertItem(array);
+	printf("a[100] = %d\n", array[100]);
 	/*strcpy(user.username, "KhanhTran");
 	strcpy(user.password, "dauxanh");*/
-	scanf(" %[^\n]", user.username);
+	/*scanf(" %[^\n]", user.username);
 	printf("%s\n", user.username);
 	printf("ENTER PASSWORD:\t");
 	scanf(" %[^\n]", user.password);
 	printf("%s\n", user.password);
 	memcpy(buff,&user, sizeof(User));
 
-	/*user_res = *((struct User *)(buff));
+	user_res = *((struct User *)(buff));
 
 	printf("Username :%s\n", user_res.username);
-	printf("Password: %s\n", user_res.password);*/
+	printf("Password: %s\n", user_res.password);
 
 	s_data.header = LOG_IN;
 	memcpy(s_data.data, &buff, MAX_DATA_LEN);
@@ -40,5 +50,5 @@ int main()
 
 	printf("header = %d\n", s_data_res.header);
 	printf("username = %s\n", user_res.username);
-	printf("password = %s\n", user_res.password);
+	printf("password = %s\n", user_res.password);*/
 }

@@ -16,7 +16,7 @@
 void formatBuff(char* string);
 int makeListenSocket(struct sockaddr_in serverAddr, int portNo, int backlog);
 void setupPollingServer(int listenSock, struct pollfd* client, int clientArrLen);
-void headerFactory(int sockfd, SocketData s_data, User user, User* player_list);
+void headerFactory(int sockfd, SocketData s_data, User user, int* player_list);
 void writeBuff(int sockfd, Header header, char* data);
 SocketData readBuff(int sockfd);
 int checkLogin(User user);
@@ -33,7 +33,7 @@ int main()
     int portNo = 5500;
 
     User user;
-    User player_list[10];
+    int player_list[10];
     SocketData s_data;
 
     struct pollfd client[max_player];
@@ -147,7 +147,7 @@ SocketData readBuff(int sockfd){
     return s_data;
 }
 
-void headerFactory(int sockfd, SocketData s_data, User user, User* player_list){
+void headerFactory(int sockfd, SocketData s_data, User user, int* player_list){
     switch(s_data.header){
         case LOG_IN:
             user = *((struct User *)(s_data.data));
