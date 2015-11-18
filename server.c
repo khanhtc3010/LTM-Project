@@ -11,7 +11,7 @@
 #include <fcntl.h>
 #include <arpa/inet.h>
 #include "struct.h"
-#define max_player 15
+#define max_player 5
 
 void formatBuff(char* string);
 int makeListenSocket(struct sockaddr_in serverAddr, int portNo, int backlog);
@@ -20,7 +20,8 @@ void headerFactory(int sockfd, SocketData s_data, User user, int* player_list);
 void writeBuff(int sockfd, Header header, char* data);
 SocketData readBuff(int sockfd);
 int checkLogin(User user);
-
+int checkPlayerNumber(int* player_list);
+int createPlayerList(int* player_list);
 
 char buff[1024];
 int tranBytes;
@@ -33,7 +34,7 @@ int main()
     int portNo = 5500;
 
     User user;
-    int player_list[10];
+    int player_list[max_player];
     SocketData s_data;
 
     struct pollfd client[max_player];
@@ -147,7 +148,36 @@ SocketData readBuff(int sockfd){
     return s_data;
 }
 
+int checkPlayerNumber(int* player_list){
+    int i;
+    for(i = 0; i < max_player; i++){
+        if(player_list[i] != 0){
+            return i;
+        }
+    }
+    return max_player;
+}
+
+int createPlayerList(int* player_list){
+    int i = 0;
+    while(i < max_player){
+        if(player_list[i] != 0){
+            player_list[i] = 0;
+            break;
+        }else{
+            i += 1;
+        }
+    }
+    i = checkPlayerNumber(player_list);
+    if(i == max_player){
+        return 1; //da du so nguoi choi
+    }else{
+        return 0; //chua du so nguoi choi, doi nguoi choi moi dang nhap
+    }
+}
+
 void headerFactory(int sockfd, SocketData s_data, User user, int* player_list){
+    int check;
     switch(s_data.header){
         case LOG_IN:
             user = *((struct User *)(s_data.data));
@@ -155,6 +185,8 @@ void headerFactory(int sockfd, SocketData s_data, User user, int* player_list){
                 writeBuff(sockfd, LOG_IN, "LOGIN FAIL");
             }else{
                 writeBuff(sockfd, LOG_IN, "LOGIN SUCCESS");
+                check = createPlayerList(player_list);
+                if(check == 1)  printf("\nGame start!\n");
             }
             break;
         case RQ_ANSWER:

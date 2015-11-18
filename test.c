@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "struct.h"
+#define max_player 5
 
 void formatBuff(char* string){
     int i = 0;
@@ -17,15 +18,37 @@ void insertItem(int* array){
 	}
 }
 
+void createPlayerList(int* player_list){
+    int i = 0;
+    while(i < max_player){
+        if(player_list[i] != 0){
+            player_list[i] = 0;
+            break;
+        }else{
+            i += 1;
+        }
+    }
+}
+
 int main()
 {
 	User user, user_res;
 	SocketData s_data, s_data_res;
 	char buff[1000];
+	int i;
 
-	int array[10];
+	int player_list[max_player];
+	createPlayerList(player_list);
+	createPlayerList(player_list);
+	createPlayerList(player_list);
+	createPlayerList(player_list);
+	for(i=0; i<max_player; i++){
+		printf("p[%d] = %d\n", i, player_list[i]);
+	}
+
+	/*int array[10];
 	insertItem(array);
-	printf("a[100] = %d\n", array[100]);
+	printf("a[100] = %d\n", array[100]);*/
 	/*strcpy(user.username, "KhanhTran");
 	strcpy(user.password, "dauxanh");*/
 	/*scanf(" %[^\n]", user.username);

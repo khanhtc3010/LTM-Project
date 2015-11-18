@@ -124,7 +124,8 @@ int login(int sockfd){
 
 void playGame(int sockfd){
 	if(login(sockfd) == 1){
-		printf("Game start!\n");
+		printf("Login success!\nWait for other player...\n");
+		
 		return;
 	}else{
 		printf("Login fail!\n");

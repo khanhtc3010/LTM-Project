@@ -29,4 +29,10 @@ typedef struct SocketData{
 	char data[MAX_DATA_LEN];
 }SocketData;
 
+typedef struct Player
+{
+	int sockfd;
+	int status;
+}Player;
+
 #endif
