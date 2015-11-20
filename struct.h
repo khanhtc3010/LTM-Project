@@ -12,6 +12,8 @@ typedef struct User
 {
 	char username[MAX_STRING_LEN];
 	char password[MAX_STRING_LEN];
+	int fd;
+	int status;
 }User;
 
 typedef struct Answer{
@@ -28,11 +30,5 @@ typedef struct SocketData{
 	Header header;
 	char data[MAX_DATA_LEN];
 }SocketData;
-
-typedef struct Player
-{
-	int sockfd;
-	int status;
-}Player;
 
 #endif

@@ -123,10 +123,14 @@ int login(int sockfd){
 }
 
 void playGame(int sockfd){
+	SocketData s_data;
 	if(login(sockfd) == 1){
 		printf("Login success!\nWait for other player...\n");
-		
-		return;
+		s_data = readBuff(sockfd);
+		if(strcmp(s_data.data, "GAME START") == 0){
+			printf("Game start!\n");
+			return;
+		}
 	}else{
 		printf("Login fail!\n");
 		return;

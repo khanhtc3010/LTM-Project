@@ -11,20 +11,21 @@
 #include <fcntl.h>
 #include <arpa/inet.h>
 #include "struct.h"
-#define max_player 5
+#define MAX_PLAYER 3
 
 void formatBuff(char* string);
 int makeListenSocket(struct sockaddr_in serverAddr, int portNo, int backlog);
 void setupPollingServer(int listenSock, struct pollfd* client, int clientArrLen);
-void headerFactory(int sockfd, SocketData s_data, User user, int* player_list);
+void headerFactory(int sockfd, SocketData s_data, User user);
 void writeBuff(int sockfd, Header header, char* data);
 SocketData readBuff(int sockfd);
 int checkLogin(User user);
-int checkPlayerNumber(int* player_list);
-int createPlayerList(int* player_list);
+int checkPlayerNumber();
+int createPlayerList(int sockfd, User user);
 
 char buff[1024];
 int tranBytes;
+User player_list[MAX_PLAYER];
 
 int main()
 {
@@ -34,16 +35,15 @@ int main()
     int portNo = 5500;
 
     User user;
-    int player_list[max_player];
     SocketData s_data;
 
-    struct pollfd client[max_player];
+    struct pollfd client[MAX_PLAYER];
     int i, maxi, sockfd, maxfd;
     int rv;
     maxi = 0;
 
     listenSock = makeListenSocket(serverAddr, portNo, 5);
-    setupPollingServer(listenSock, client, max_player);
+    setupPollingServer(listenSock, client, MAX_PLAYER);
 
     while(1){
         rv = poll(client, maxi+1, 60000);
@@ -54,7 +54,7 @@ int main()
         }else{
             if(client[0].revents & POLLRDNORM){
                 connSock = accept(listenSock, (struct sockaddr*)&clientAddr, (socklen_t*)&clientAddrLenght);
-                for(i = 1; i < max_player; i++){
+                for(i = 1; i < MAX_PLAYER; i++){
                     if(client[i].fd < 0){
                         client[i].fd = connSock;
                         break;
@@ -64,19 +64,21 @@ int main()
                 if(i > maxi) maxi = i;
                 if(--rv <= 0) continue;
             }
-            for(i = 1; i < max_player; i++){
+            for(i = 1; i < MAX_PLAYER; i++){
                 if((sockfd = client[i].fd) <0)  continue;
                 if(client[i].revents & (POLLRDNORM | POLLERR)){
                     formatBuff(buff);
                     tranBytes = read(sockfd, buff, 1024);
                     
-                    if(tranBytes == 0){
+                    if(tranBytes <= 0){
                         close(sockfd);
                         client[i].fd = -1;
                     }else{
                         //dosomething
+                        printf("CO data\n");
                         s_data = *((struct SocketData *)buff);
-                        headerFactory(sockfd, s_data, user, player_list);
+                        headerFactory(sockfd, s_data, user);
+                        printf("out head\n");
                     }
                     if(--rv <= 0)   break;
                 }
@@ -109,6 +111,7 @@ int makeListenSocket(struct sockaddr_in serverAddr, int portNo, int backlog){
     if(listenSock < 0)  error("Error opening socket!");
 
     if(bind(listenSock, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0){
+        printf("\nBind loi");
         error("Error binding socket!");
         exit(0);
     }
@@ -148,36 +151,41 @@ SocketData readBuff(int sockfd){
     return s_data;
 }
 
-int checkPlayerNumber(int* player_list){
+int checkPlayerNumber(){
     int i;
-    for(i = 0; i < max_player; i++){
-        if(player_list[i] != 0){
+    for(i = 0; i < MAX_PLAYER-1; i++){
+        if(player_list[i].status != 1){
+            printf("player number = %d\n", i);
             return i;
         }
     }
-    return max_player;
+    return MAX_PLAYER-1;
 }
 
-int createPlayerList(int* player_list){
+int createPlayerList(int sockfd, User user){
     int i = 0;
-    while(i < max_player){
-        if(player_list[i] != 0){
-            player_list[i] = 0;
+    while(i < MAX_PLAYER){
+        if(player_list[i].status != 1){
+            player_list[i].status = 1;
+            strcpy(player_list[i].username,user.username);
+            strcpy(player_list[i].password,user.password);
+            player_list[i].fd = sockfd;
+            printf("sock = %d\n", player_list[i].fd);
             break;
         }else{
             i += 1;
         }
     }
-    i = checkPlayerNumber(player_list);
-    if(i == max_player){
+    i = checkPlayerNumber();
+    if(i == MAX_PLAYER-1){
         return 1; //da du so nguoi choi
     }else{
         return 0; //chua du so nguoi choi, doi nguoi choi moi dang nhap
     }
 }
 
-void headerFactory(int sockfd, SocketData s_data, User user, int* player_list){
-    int check;
+void headerFactory(int sockfd, SocketData s_data, User user){
+    int check, i;
     switch(s_data.header){
         case LOG_IN:
             user = *((struct User *)(s_data.data));
@@ -185,8 +193,14 @@ void headerFactory(int sockfd, SocketData s_data, User user, int* player_list){
                 writeBuff(sockfd, LOG_IN, "LOGIN FAIL");
             }else{
                 writeBuff(sockfd, LOG_IN, "LOGIN SUCCESS");
-                check = createPlayerList(player_list);
-                if(check == 1)  printf("\nGame start!\n");
+                check = createPlayerList(sockfd, user);
+                if(check == 1){
+                    for(i = 0; i < MAX_PLAYER; i++){
+                        writeBuff(player_list[i].fd, LOG_IN, "GAME START");
+                    }
+                }else{
+                    printf("Chua du ng choi\n");
+                }
             }
             break;
         case RQ_ANSWER:
