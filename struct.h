@@ -3,10 +3,7 @@
 
 #define MAX_STRING_LEN 100
 #define MAX_DATA_LEN 200
-
-// typedef struct {
-// 	char string[MAX_STRING_LEN];
-// }String;
+#define MAX_PLAYER 3
 
 typedef struct User
 {
@@ -22,8 +19,8 @@ typedef struct Answer{
 
 typedef enum{
 	LOG_IN, LOG_OUT, SIGN_UP,
-	RQ_ANSWER, RQ_ESCAPE,
-	ERROR
+	RQ_ANSWER, EXIT,
+	ERROR, START, LOSE
 }Header;
 
 typedef struct SocketData{

@@ -1,23 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h> 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <errno.h>
-#include "struct.h"
+#include "myLib.h"
+#include "cli_func/setup.h"
+#include "cli_func/login.h"
 
-void formatBuff(char* string);
-int makeConnectSocket(struct sockaddr_in serverAddr, int portNo, char* serverIp);
 void playGame(int sockfd);
-int login(int sockfd);
-void writeBuff(int sockfd, Header header, char* data);
-SocketData readBuff(int sockfd);
-int menu();
-
-char buff[1024];
-int tranBytes;
 
 int main()
 {
@@ -40,7 +25,10 @@ int main()
 			printf("Help\n");
 			continue;
 		}
-		if(choiceOption == 3)	break;
+		if(choiceOption == 3){
+			writeBuff(sockfd,EXIT,"");
+			break;
+		}
 	}while(1);
 
 	close(sockfd);
@@ -49,86 +37,21 @@ int main()
 
 
 /*FUNCTIONS*/
-void formatBuff(char* string){
-    int i = 0;
-    while(string[i] != '\0'){
-        string[i] = '\0';
-        i++;
-    }
-}
-
-int makeConnectSocket(struct sockaddr_in serverAddr, int portNo, char* serverIp){
-	int sockfd;
-
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if(sockfd < 0)	error("Error opening socket!");
-
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(portNo);
-	if(inet_pton(AF_INET, serverIp, &serverAddr.sin_addr) <= 0){
-		printf("Error setup server!\n");
-		exit(0);
-	}
-
-	if(connect(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0){
-		printf("Error connect server!\n");
-		exit(0);
-	}
-	return sockfd;
-}
-
-void writeBuff(int sockfd, Header header, char* data){
-    SocketData s_data;
-    s_data.header = header;
-    memcpy(s_data.data, data, MAX_DATA_LEN);
-
-    formatBuff(buff);
-    memcpy(buff, &s_data, sizeof(SocketData));
-
-    tranBytes = write(sockfd, buff, sizeof(SocketData));
-    if(tranBytes < 0)   error("Error writing socket!");
-}
-
-SocketData readBuff(int sockfd){
-    SocketData s_data;
-    tranBytes = read(sockfd, buff, 1024);
-    if(tranBytes < 0)   error("Error reading socket!");
-    s_data = *((struct SocketData *)buff);
-    return s_data;
-}
-
-int menu(){
-	int choice;
-	printf("===========1 vs 100==========\n\t1.Play Game\n\t2.Help\n\t3.Exit\n=============================\nChoice: ");
-	scanf("%d", &choice);
-	return choice;
-}
-
-int login(int sockfd){
-	SocketData s_data;
-	User user;
-
-	printf("ENTER USERNAME:\t");
-	scanf(" %[^\n]", user.username);
-	printf("ENTER PASSWORD:\t");
-	scanf(" %[^\n]", user.password);
-	memcpy(buff,&user, sizeof(User));
-
-	writeBuff(sockfd, LOG_IN, buff);
-	s_data = readBuff(sockfd);
-	if(strcmp(s_data.data, "LOGIN SUCCESS") == 0){
-		return 1;
-	}
-	return 0;
-}
 
 void playGame(int sockfd){
 	SocketData s_data;
+	int choice;
 	if(login(sockfd) == 1){
 		printf("Login success!\nWait for other player...\n");
 		s_data = readBuff(sockfd);
-		if(strcmp(s_data.data, "GAME START") == 0){
-			printf("Game start!\n");
+		if(s_data.header == START){
+			printf("%s\n",s_data.data);
+			/*if(strcmp(s_data.data, "Game start!\nYou are main player!")==0){
+				choice = selectLevel();
+			}
+			do{
+				s_data = readBuff(sockfd);
+			}while(s_data.header != LOSE)*/
 			return;
 		}
 	}else{
