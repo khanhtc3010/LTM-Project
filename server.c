@@ -2,7 +2,10 @@
 #include "ser_func/setup.h"
 #include "ser_func/login.h"
 #include "ser_func/player_list.h"
-//#include "ser_func/server_function.h"
+#include "ser_func/server_function.h"
+
+//global var
+int questionNumber;
 
 void headerFactory(int sockfd, SocketData s_data, User* player_list);
 //User player_list[MAX_PLAYER];
@@ -74,7 +77,8 @@ int main()
 /*FUNCTIONS*/
 
 void headerFactory(int sockfd, SocketData s_data, User* player_list){
-    int check, i;
+    int check;
+    char question[1024];
     User user;
     switch(s_data.header){
         case LOG_IN:
@@ -87,15 +91,25 @@ void headerFactory(int sockfd, SocketData s_data, User* player_list){
                 if(check == 1){
                     setMainPlayer(player_list);
                     writeAllSocket(player_list, START, "Game start!\nYou are main player!", "Game start!");
+                    questionNumber = 0;
                 }else{
                     printf("Not player enough...\n");
                 }
             }
             break;
         case LEVEL:
-            printf("level = %s\n", s_data.data);
+            questionNumber += 1;
+            check = atoi(s_data.data);
+            printf("question = %d\nlevel = %d\n", questionNumber, check);
+            strcpy(question,getQuestion(questionNumber, check));
+            if(strlen(question)==0){
+                printf("No more question in data\n");
+                break;
+            }
+            writeAllSocket(player_list, QUESTION, question, question);
             break;
-        case QUESTION:
+        case ANSWER:
+            break;
         case EXIT:
             if(removePlayer(sockfd, player_list) == 0){
                 close(sockfd);
