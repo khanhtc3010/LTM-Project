@@ -1,6 +1,7 @@
 #include "myLib.h"
 #include "cli_func/setup.h"
 #include "cli_func/login.h"
+#include "cli_func/user_function.h"
 
 void playGame(int sockfd);
 
@@ -40,18 +41,18 @@ int main()
 
 void playGame(int sockfd){
 	SocketData s_data;
-	int choice;
+	//char* choice;
 	if(login(sockfd) == 1){
 		printf("Login success!\nWait for other player...\n");
 		s_data = readBuff(sockfd);
 		if(s_data.header == START){
 			printf("%s\n",s_data.data);
-			/*if(strcmp(s_data.data, "Game start!\nYou are main player!")==0){
-				choice = selectLevel();
+			if(strcmp(s_data.data, "Game start!\nYou are main player!")==0){
+				writeBuff(sockfd, LEVEL, selectLevel());
 			}
-			do{
+			/*do{
 				s_data = readBuff(sockfd);
-			}while(s_data.header != LOSE)*/
+			}while(s_data.header != LOSE);*/
 			return;
 		}
 	}else{

@@ -18,9 +18,10 @@ typedef struct Answer{
 }Answer;
 
 typedef enum{
-	LOG_IN, LOG_OUT, SIGN_UP,
-	RQ_ANSWER, EXIT,
-	ERROR, START, LOSE
+	LOG_IN,
+	ANSWER, QUESTION, LEVEL,
+	START, EXIT, LOSE,
+	ERROR
 }Header;
 
 typedef struct SocketData{

@@ -1,20 +1,3 @@
-#include <stdlib.h>
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
-#include "struct.h"
-
-int getLevel(int sockfd){
-	int tranBytes;
-	int level;
-
-	tranBytes = read(sockfd, level, 1024);
-	if(tranBytes < 0){
-		printf("ERROR ACCEPT LEVEL\n");
-	}
-	return level;
-}
-
 int checkAnswer(int question, int level, int answer){
 	FILE *fp;
 	char *token;

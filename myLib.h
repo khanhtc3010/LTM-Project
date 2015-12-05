@@ -54,12 +54,30 @@ SocketData readBuff(int sockfd){
 }
 
 void writeAllSocket(User* player_list, Header header, char* mPlayerData, char* nPlayer){
+	int i;
 	for(i = 1; i < MAX_PLAYER; i++){
 		if(player_list[i].status == 2){
-			writeBuff(player_list[i].fd, header, "Game start!\nYou are main player!");
+			writeBuff(player_list[i].fd, header, mPlayerData);
 		}
 		if(player_list[i].status == 1){
-			writeBuff(player_list[i].fd, header, "Game start!");
+			writeBuff(player_list[i].fd, header, nPlayer);
 		}
 	}
+}
+
+char* intToChar(int num){
+	switch(num){
+		case 1:
+			return "1";
+		case 2:
+			return "2";
+		case 3:
+			return "3";
+	}
+}
+
+int charToInt(char* chr){
+	if(strcpy(chr, "1")==0)	return 1;
+	if(strcpy(chr, "2")==0)	return 2;
+	if(strcpy(chr, "3")==0)	return 3;
 }

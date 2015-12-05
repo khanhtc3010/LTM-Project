@@ -1,82 +1,18 @@
-#include <stdlib.h>
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
-#include "struct.h"
-
-int checkLogin(char* username, char* password){
-	FILE *fp;
-	char *token;
-	char data[256];
-
-	if((fp=fopen("txt_user.txt","r"))==NULL){
-		printf("OPEN USER.TXT FAIL\n");
-		fclose(fp);
-		return 0;
-	}
-
-	while(!feof(fp)){
-		fgets(data,256,fp);
-		if(data[0]=='U' && data[1]=='|'){
-			
-			token = strtok(data, "|");
-			token = strtok(NULL, "|");
-			
-			if(strcmp(token,username)==0){		
-				token = strtok(NULL, "|");
-				
-				if(strcmp(token,password)==0){
-					fclose(fp);
-					return 1;
-				}else{
-					fclose(fp);
-					return 0;
-				}			
-			}
-		}
-	}
-	fclose(fp);
-	return 0;
-}
-
-int login(){
-	User user;
-
-	do{
-		printf("ENTER USERNAME:\t");
-		scanf(" %[^\n]", user.username);
-
-		printf("ENTER PASSWORD:\t");
-		scanf(" %[^\n]", user.password);
-	}while(checkLogin(user.username,user.password)!=1);
-	
-	printf("LOGIN SUCCES\n");
-	return 1;
-}
-
-int selectLevel(){
+char* selectLevel(){
 	int lvl;
-	int tranBytes;
-	int sockfd;
 
-	printf("EASY OR HARD:\n");
-	printf("1.EASY\n");
-	printf("2.HARD\n");
+	printf("\nSelect question's level:\n");
+	printf("1.easy\n");
+	printf("2.hard\n");
 
 	do{
 		printf("SELECT (1-2): ");
-		scanf(" %[^\n]",&lvl);
-
-	}while(lvl!=1||lvl!=2);
-
-	// send to server
-	tranBytes = write(sockfd, lvl, 1024);
-
-	return 1;
-
+		scanf("%d",&lvl);
+	}while(lvl!=1&&lvl!=2);
+	return intToChar(lvl);
 }
 
-char* getQuestion(int question, int level){
+/*char* getQuestion(int question, int level){
 	FILE *fp;
 	char *token;
 	char data[256];
@@ -151,11 +87,4 @@ void answer(){
 	tranBytes = write(sockfd, answer, 1024);
 	
 	return;
-}
-
-int main()
-{
-	login();
-
-	return 0;
-}
+}*/
