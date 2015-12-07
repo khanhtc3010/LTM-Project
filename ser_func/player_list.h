@@ -57,11 +57,11 @@ int removePlayer(int sockfd, User* player_list){
         if(player_list[i].fd == sockfd){
             if(player_list[i].status == 1){
                 player_list[i].status = 0;
-                return 0;
+                return 0;   //removed normal player
             }
             if(player_list[i].status == 2){
                 player_list[i].status = 0;
-                return 1;
+                return 1;   //removed main player
             }
         }else{
             i += 1;

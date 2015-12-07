@@ -12,22 +12,17 @@ char* selectLevel(){
 	return intToChar(lvl);
 }
 
+char* answer(){
+	int answer;
+
+	do{
+		printf("ANSWER (1-3): ");
+		scanf("%d",&answer);
+	}while(answer!=1&&answer!=2&&answer!=3);
+	return intToChar(answer);
+}
 /*
 void displayQuestion(char* question){
 	printf("%s\n",question );
 }
-
-void answer(){
-	int answer;
-	int tranBytes;
-	int sockfd;
-
-	do{
-		printf("ANSWER (1-3): ");
-		scanf(" %d",&answer);
-	}while(answer!=1||answer!=2||answer!=3);
-
-	tranBytes = write(sockfd, answer, 1024);
-	
-	return;
-}*/
+*/

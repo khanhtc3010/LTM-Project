@@ -4,7 +4,7 @@ int checkAnswer(int question, int level, int answer){
 	char data[256];
 
 	if((fp=fopen("ser_func/data/txt_answer.txt","r"))==NULL){
-		printf("OPEN ANSWER.TXT FAIL\n");
+		printf("OPEN txt_answer.txt FAIL\n");
 		fclose(fp);
 		// return 0;
 	}

@@ -53,13 +53,16 @@ void playGame(int sockfd){
 			}
 			do{
 				if(isMP == 1){
+					s_data = readBuff(sockfd);
 					writeBuff(sockfd, LEVEL, selectLevel());
 				}
 				s_data = readBuff(sockfd);
 				if(s_data.header == QUESTION){
 					printf("%s\n", s_data.data);
+					writeBuff(sockfd, ANSWER, answer());
 				}
 			}while(s_data.header != LOSE);
+			printf("%s\n", s_data.data);
 			return;
 		}
 	}else{

@@ -6,6 +6,7 @@
 
 //global var
 int questionNumber;
+int questionLevel;
 
 void headerFactory(int sockfd, SocketData s_data, User* player_list);
 //User player_list[MAX_PLAYER];
@@ -99,9 +100,9 @@ void headerFactory(int sockfd, SocketData s_data, User* player_list){
             break;
         case LEVEL:
             questionNumber += 1;
-            check = atoi(s_data.data);
-            printf("question = %d\nlevel = %d\n", questionNumber, check);
-            strcpy(question,getQuestion(questionNumber, check));
+            questionLevel = atoi(s_data.data);
+            printf("question = %d\nlevel = %d\n", questionNumber, questionLevel);
+            strcpy(question,getQuestion(questionNumber, questionLevel));
             if(strlen(question)==0){
                 printf("No more question in data\n");
                 break;
@@ -109,13 +110,29 @@ void headerFactory(int sockfd, SocketData s_data, User* player_list){
             writeAllSocket(player_list, QUESTION, question, question);
             break;
         case ANSWER:
+            check = checkAnswer(questionNumber, questionLevel, atoi(s_data.data));
+            if(check==0){
+                check = removePlayer(sockfd, player_list);
+                writeBuff(sockfd, LOSE, "You lose!");
+                close(sockfd);
+                printf("Disconnect player on socket = %d\n", sockfd);
+                /*if(removePlayer(sockfd, player_list) == 0){
+                    writeBuff(sockfd, LOSE, "You lose!");
+                    close(sockfd);
+                    printf("Disconnect player on socket = %d\n", sockfd);
+                }else{
+                    //writeAllSocket(player_list, LOSE, "You lose!", "Main player out...");
+                    close(sockfd);
+                    printf("Disconnect main player on socket = %d\n", sockfd);
+                }*/
+            }
             break;
         case EXIT:
             if(removePlayer(sockfd, player_list) == 0){
                 close(sockfd);
                 printf("Disconnect player on socket = %d\n", sockfd);
             }else{
-                
+                writeAllSocket(player_list, EXIT, "Bye!", "Main player out...");
             }
             break;
     }
