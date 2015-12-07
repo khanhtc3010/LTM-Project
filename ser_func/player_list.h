@@ -31,7 +31,7 @@ int appendPlayer(int sockfd, User user, User* player_list){
     }
 }
 
-void setMainPlayer(User* player_list){
+int setMainPlayer(User* player_list){
     int i = 0;
     while(i == 0){
         srand(time(NULL));
@@ -39,6 +39,7 @@ void setMainPlayer(User* player_list){
     }
     printf("main player on socket %d\n", player_list[i].fd);
     player_list[i].status = 2;
+    return player_list[i].fd;
 }
 
 int checkGameStatus(User* player_list){

@@ -7,6 +7,7 @@
 //global var
 int questionNumber;
 int questionLevel;
+int mainPlayerSocketfd;
 
 void headerFactory(int sockfd, SocketData s_data, User* player_list);
 //User player_list[MAX_PLAYER];
@@ -90,8 +91,10 @@ void headerFactory(int sockfd, SocketData s_data, User* player_list){
                 writeBuff(sockfd, LOG_IN, "LOGIN SUCCESS");
                 check = appendPlayer(sockfd, user, player_list);
                 if(check == 1){
-                    setMainPlayer(player_list);
+                    mainPlayerSocketfd = setMainPlayer(player_list);
                     writeAllSocket(player_list, START, "Game start!\nYou are main player!", "Game start!");
+                    writeBuff(mainPlayerSocketfd, LEVEL, "\0");
+                    printf("write buff success\n");
                     questionNumber = 0;
                 }else{
                     printf("Not player enough...\n");
@@ -112,19 +115,17 @@ void headerFactory(int sockfd, SocketData s_data, User* player_list){
         case ANSWER:
             check = checkAnswer(questionNumber, questionLevel, atoi(s_data.data));
             if(check==0){
-                check = removePlayer(sockfd, player_list);
-                writeBuff(sockfd, LOSE, "You lose!");
-                close(sockfd);
-                printf("Disconnect player on socket = %d\n", sockfd);
-                /*if(removePlayer(sockfd, player_list) == 0){
-                    writeBuff(sockfd, LOSE, "You lose!");
-                    close(sockfd);
-                    printf("Disconnect player on socket = %d\n", sockfd);
+                if(removePlayer(sockfd, player_list)==1){
+                    writeAllSocket(player_list, LOSE, "You lose!", "Main player out...");
+                    //close(sockfd);
+                    printf("Disconnect main player socket %d\n", sockfd);
                 }else{
-                    //writeAllSocket(player_list, LOSE, "You lose!", "Main player out...");
-                    close(sockfd);
-                    printf("Disconnect main player on socket = %d\n", sockfd);
-                }*/
+                    writeBuff(sockfd, LOSE, "You lose!");
+                    //close(sockfd);
+                    printf("Disconnect player on socket = %d\n", sockfd);
+                }
+            }else{
+                writeBuff(sockfd, LEVEL, "\0");
             }
             break;
         case EXIT:

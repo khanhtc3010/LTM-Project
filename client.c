@@ -52,6 +52,9 @@ void playGame(int sockfd){
 		do{
 			s_data = readBuff(sockfd);
 			headerFactory(sockfd, s_data);
+			if(s_data.header==LOSE){
+				break;
+			}
 		}while(1);
 		/*if(s_data.header == START){
 			printf("%s\n",s_data.data);
@@ -73,8 +76,8 @@ void playGame(int sockfd){
 		}*/
 	}else{
 		printf("Login fail!\n");
-		return;
 	}
+	return;
 }
 
 void headerFactory(int sockfd, SocketData s_data){
@@ -86,7 +89,9 @@ void headerFactory(int sockfd, SocketData s_data){
 			}
 			break;
 		case LEVEL:
-			writeBuff(sockfd, LEVEL, selectLevel());
+			if(isMP==1){
+				writeBuff(sockfd, LEVEL, selectLevel());
+			}
 			break;
 		case QUESTION:
 			printf("%s\n", s_data.data);
