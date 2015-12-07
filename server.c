@@ -94,7 +94,6 @@ void headerFactory(int sockfd, SocketData s_data, User* player_list){
                     mainPlayerSocketfd = setMainPlayer(player_list);
                     writeAllSocket(player_list, START, "Game start!\nYou are main player!", "Game start!");
                     writeBuff(mainPlayerSocketfd, LEVEL, "\0");
-                    printf("write buff success\n");
                     questionNumber = 0;
                 }else{
                     printf("Not player enough...\n");
@@ -116,12 +115,10 @@ void headerFactory(int sockfd, SocketData s_data, User* player_list){
             check = checkAnswer(questionNumber, questionLevel, atoi(s_data.data));
             if(check==0){
                 if(removePlayer(sockfd, player_list)==1){
-                    writeAllSocket(player_list, LOSE, "You lose!", "Main player out...");
-                    //close(sockfd);
+                    writeAllSocket(player_list, LOSE, "You lose!", "Main player out...\nYou win");
                     printf("Disconnect main player socket %d\n", sockfd);
                 }else{
                     writeBuff(sockfd, LOSE, "You lose!");
-                    //close(sockfd);
                     printf("Disconnect player on socket = %d\n", sockfd);
                 }
             }else{
