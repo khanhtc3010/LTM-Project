@@ -3,7 +3,7 @@
 
 #define MAX_STRING_LEN 100
 #define MAX_DATA_LEN 200
-#define MAX_PLAYER 3
+#define MAX_PLAYER 4
 
 typedef struct User
 {
@@ -13,14 +13,10 @@ typedef struct User
 	int status;
 }User;
 
-typedef struct Answer{
-	// TODO
-}Answer;
-
 typedef enum{
 	LOG_IN,
-	ANSWER, QUESTION, LEVEL,
-	START, EXIT, LOSE,
+	ANSWER, QUESTION, LEVEL, HELP,
+	START, EXIT, LOSE, WIN,
 	ERROR
 }Header;
 

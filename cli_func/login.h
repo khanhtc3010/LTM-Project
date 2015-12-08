@@ -2,7 +2,7 @@ int login(int sockfd){
 	SocketData s_data;
 	User user;
 
-	printf("ENTER USERNAME:\t");
+	printf("\nENTER USERNAME:\t");
 	scanf(" %[^\n]", user.username);
 	printf("ENTER PASSWORD:\t");
 	scanf(" %[^\n]", user.password);

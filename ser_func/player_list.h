@@ -69,3 +69,32 @@ int removePlayer(int sockfd, User* player_list){
         }
     }
 }
+
+void resetPlayerList(User* player_list){
+    int i = 1;
+    while(i < MAX_PLAYER){
+        if(player_list[i].status!=0){
+            player_list[i].status = 0;
+        }
+        i += 1;
+    }
+}
+
+int checkNormalPlayer(User* player_list){
+    int i = 1;
+    int count = 0;
+
+    while(i<MAX_PLAYER){
+        if(player_list[i].status == 1){
+            count += 1;
+        }
+        i += 1;
+    }
+    return count;
+}
+
+char* wonScore(User* player_list){
+    int score;
+    score = MAX_PLAYER - checkNormalPlayer(player_list) - 1;
+    return intToChar(score);
+}

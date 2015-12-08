@@ -56,6 +56,7 @@ int main()
                     tranBytes = read(sockfd, buff, 1024);
                     
                     if(tranBytes <= 0){
+                        //removePlayer(sockfd, player_list);
                         close(sockfd);
                         client[i].fd = -1;
                     }else{
@@ -93,7 +94,6 @@ void headerFactory(int sockfd, SocketData s_data, User* player_list){
                 if(check == 1){
                     mainPlayerSocketfd = setMainPlayer(player_list);
                     writeAllSocket(player_list, START, "Game start!\nYou are main player!", "Game start!");
-                    writeBuff(mainPlayerSocketfd, LEVEL, "\0");
                     questionNumber = 0;
                 }else{
                     printf("Not player enough...\n");
@@ -115,14 +115,34 @@ void headerFactory(int sockfd, SocketData s_data, User* player_list){
             check = checkAnswer(questionNumber, questionLevel, atoi(s_data.data));
             if(check==0){
                 if(removePlayer(sockfd, player_list)==1){
-                    writeAllSocket(player_list, LOSE, "You lose!", "Main player out...\nYou win");
+                    writeAllSocket(player_list, LOSE, "You lose! Normal win", "Main player out...\nYou win");
+                    writeBuff(sockfd, LOSE, "You lose! Normal win");
+                    resetPlayerList(player_list);
                     printf("Disconnect main player socket %d\n", sockfd);
                 }else{
                     writeBuff(sockfd, LOSE, "You lose!");
                     printf("Disconnect player on socket = %d\n", sockfd);
                 }
             }else{
-                writeBuff(sockfd, LEVEL, "\0");
+                if(checkNormalPlayer(player_list)==0&&mainPlayerSocketfd==sockfd){
+                    writeBuff(mainPlayerSocketfd, WIN, "You win!");
+                    resetPlayerList(player_list);
+                }else{
+                    printf("won Score = %s\n", wonScore(player_list));
+                    writeBuff(sockfd, LEVEL, wonScore(player_list));
+                }
+            }
+            break;
+        case HELP:
+            switch(atoi(s_data.data)){
+                case 1:
+                    printf("won Score = %s\n", wonScore(player_list));
+                    writeBuff(sockfd, LEVEL, wonScore(player_list));
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
             }
             break;
         case EXIT:
