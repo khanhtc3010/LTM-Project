@@ -56,7 +56,7 @@ int main()
                     tranBytes = read(sockfd, buff, 1024);
                     
                     if(tranBytes <= 0){
-                        //removePlayer(sockfd, player_list);
+                        removePlayer(sockfd, player_list);
                         close(sockfd);
                         client[i].fd = -1;
                     }else{
@@ -140,8 +140,10 @@ void headerFactory(int sockfd, SocketData s_data, User* player_list){
                     writeBuff(sockfd, LEVEL, wonScore(player_list));
                     break;
                 case 2:
+                    writeBuff(sockfd, HELP_2, intToChar(popWrongAnswer(questionNumber, questionLevel)));
                     break;
                 case 3:
+                    writeBuff(sockfd, HELP_3, intToChar(randAnswer()));
                     break;
             }
             break;

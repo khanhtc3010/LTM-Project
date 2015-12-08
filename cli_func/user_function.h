@@ -61,15 +61,16 @@ int sendHelp(int* helpArray){
 	}
 	
 	printf("Ban co muon dung tro giup?(y/n): ");
-	fflush(stdin);
+	while(getchar()!='\n');
 	scanf("%c",&choice);
 	while(getchar()!='\n');
+	printf("choice = %c\n", choice);
 	if(choice=='y'||choice=='Y'){
 		do{
 			printf("Ban co cac quyen tro giup(): \n");
 			if(helpArray[0]==1)	printf("\t1.Skip this question.\n");
 			if(helpArray[1]==1) printf("\t2.Bo 1 dap an sai.\n");
-			if(helpArray[2]==1)	printf("\t3.Tham khao nguoi choi khac.\n");
+			if(helpArray[2]==1)	printf("\t3.Goi y tu server.\n");
 			printf("Your choice: ");
 			scanf("%d",&help);
 			while(getchar()!='\n');

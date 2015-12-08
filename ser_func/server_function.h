@@ -101,3 +101,57 @@ char* getQuestion(int question_num, int level){
 	fclose(fp);
 	return "\0";
 }
+
+int randAnswer(){
+	int i = 0;
+    while(i == 0){
+        srand(time(NULL));
+        i = rand() % 4;
+    }
+    return i;
+}
+
+int getCorrectAnswer(int question, int level){
+	FILE *fp;
+	char *token;
+	char data[256];
+
+	if((fp=fopen("ser_func/data/txt_answer.txt","r"))==NULL){
+		printf("OPEN txt_answer.txt FAIL\n");
+		fclose(fp);
+		// return 0;
+	}
+
+	while(!feof(fp)){
+		fgets(data,256,fp);
+		// read questin number
+		token= strtok(data,"|");
+
+		if(atoi(data)==question){
+			// easy level
+			if(level == 1){
+				// read easy answer
+				token= strtok(data,"|");
+				return atoi(token);
+			}
+			// hard level
+			if(level == 2){
+			
+				token= strtok(data,"|");
+				token= strtok(data,"|");
+				return atoi(token);
+			}
+		}
+	}
+	printf("SOMETHING WRONG!\n");
+	return 0;
+}
+
+int popWrongAnswer(int question, int level){
+	int correctAns;
+
+	correctAns = getCorrectAnswer(question, level);
+	if(correctAns!=1)	return 1;
+	if(correctAns!=2)	return 2;
+	if(correctAns!=3)	return 3;
+}

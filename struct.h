@@ -15,7 +15,7 @@ typedef struct User
 
 typedef enum{
 	LOG_IN,
-	ANSWER, QUESTION, LEVEL, HELP,
+	ANSWER, QUESTION, LEVEL, HELP, HELP_3, HELP_2,
 	START, EXIT, LOSE, WIN,
 	ERROR
 }Header;

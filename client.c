@@ -101,6 +101,20 @@ void headerFactory(int sockfd, SocketData s_data){
 				writeBuff(sockfd, ANSWER, answer);
 			}
 			break;
+		case HELP_3:
+			printf("Dap an goi y tu server: %s\n", s_data.data);
+			printf("ANSWER(1~3): ");
+			fflush(stdout);
+			strcpy(answer, get_answer(60000));
+			writeBuff(sockfd, ANSWER, answer);
+			break;
+		case HELP_2:
+			printf("Dap an sai la %s\n", s_data.data);
+			printf("ANSWER(1~3): ");
+			fflush(stdout);
+			strcpy(answer, get_answer(60000));
+			writeBuff(sockfd, ANSWER, answer);
+			break;
 		case LOSE:
 			printf("%s\n", s_data.data);
 			if(isMP==1){
