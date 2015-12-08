@@ -15,3 +15,19 @@ int login(int sockfd){
 	}
 	return 0;
 }
+
+void signUp(int sockfd){
+	SocketData s_data;
+	User user;
+
+	printf("\nCreate a new account:\n");
+	printf("\nENTER USERNAME:\t");
+	scanf(" %[^\n]", user.username);
+	printf("ENTER PASSWORD:\t");
+	scanf(" %[^\n]", user.password);
+	memcpy(buff,&user, sizeof(User));
+
+	writeBuff(sockfd, SIGN_UP, buff);
+	s_data = readBuff(sockfd);
+	printf("%s\n", s_data.data);
+}

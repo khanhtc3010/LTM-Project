@@ -155,5 +155,13 @@ void headerFactory(int sockfd, SocketData s_data, User* player_list){
                 writeAllSocket(player_list, EXIT, "Bye!", "Main player out...");
             }
             break;
+        case SIGN_UP:
+            user = *((struct User *)(s_data.data));
+            if(checkSignUp(user)==1){
+                writeBuff(sockfd, SIGN_UP, "Created success, your account now available");
+            }else{
+                writeBuff(sockfd, ERROR, "Invalid account, try again later");
+            }
+            break;
     }
 }

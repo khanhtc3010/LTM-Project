@@ -28,7 +28,8 @@ int main()
 			continue;
 		}
 		if(choiceOption == 2){
-			printf("Game 1 vs 100\nCreated by khanhtc and khoivd\n");
+			//printf("Game 1 vs 100\nCreated by khanhtc and khoivd\n");
+			signUp(sockfd);
 			continue;
 		}
 		if(choiceOption == 3){

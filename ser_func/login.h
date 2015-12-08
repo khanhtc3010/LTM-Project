@@ -33,3 +33,24 @@ int checkLogin(User user){
     fclose(fp);
     return 0;
 }
+
+int checkSignUp(User user){
+    FILE *fp;
+    char data[256];
+    int check;
+
+    check = checkLogin(user);
+    if(check==0){
+        fp = fopen("ser_func/data/txt_user.txt","a");
+        strcpy(data,"U|");
+        strcat(data,user.username);
+        strcat(data,"|");
+        strcat(data,user.password);
+        strcat(data,"|");
+        fprintf(fp, "%s\n", data);
+        fclose(fp);
+        return 1;
+    }else{
+        return 0;
+    }
+}

@@ -28,7 +28,7 @@ void formatBuff(char* string){
 
 int menu(){
 	int choice;
-	printf("===========1 vs 100==========\n\t1.Play Game\n\t2.About\n\t3.Exit\n=============================\nChoice: ");
+	printf("===========1 vs 100==========\n\t1.Play Game\n\t2.Sign Up\n\t3.Exit\n=============================\nChoice: ");
 	scanf("%d", &choice);
 	return choice;
 }
