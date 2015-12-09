@@ -107,6 +107,7 @@ void headerFactory(int sockfd, SocketData s_data, User* player_list){
             strcpy(question,getQuestion(questionNumber, questionLevel));
             if(strlen(question)==0){
                 printf("No more question in data\n");
+                writeAllSocket(player_list, LOSE, "End game\nYou lose!", "End game\nYou lose!");
                 break;
             }
             writeAllSocket(player_list, QUESTION, question, question);
