@@ -98,3 +98,19 @@ char* wonScore(User* player_list){
     score = MAX_PLAYER - checkNormalPlayer(player_list) - 1;
     return intToChar(score);
 }
+
+
+int checkCurrentPlayer(User user, User* player_list){
+    int i = 1;
+    int result;
+
+    while(i<MAX_PLAYER){
+        if(player_list[i].status != 0){
+            if(strcmp(user.username, player_list[i].username)==0){
+                return 1;
+            }
+        }
+        i += 1;
+    }
+    return 0;
+}

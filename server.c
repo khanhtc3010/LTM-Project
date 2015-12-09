@@ -86,7 +86,7 @@ void headerFactory(int sockfd, SocketData s_data, User* player_list){
     switch(s_data.header){
         case LOG_IN:
             user = *((struct User *)(s_data.data));
-            if((checkLogin(user)!=1)||(checkGameStatus(player_list)==1)){
+            if((checkLogin(user)!=1)||(checkGameStatus(player_list)==1)||(checkCurrentPlayer(user, player_list)!=0)){
                 writeBuff(sockfd, ERROR, "LOGIN FAIL");
             }else{
                 writeBuff(sockfd, LOG_IN, "LOGIN SUCCESS");
